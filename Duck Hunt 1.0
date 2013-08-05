@@ -1,0 +1,83 @@
+#Author's name: Kurtis De Valk
+#Last Modified by: Kurtis De Valk 
+#Date last Modified: July. 31, 2013 
+#Program description: Duck Hunt
+#Revision History: 1.0
+
+import pygame, random
+pygame.init()
+
+screen = pygame.display.set_mode((891, 558))
+
+class Pointer(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("Crosshair.gif")
+        self.image = pygame.transform.scale(self.image, (40, 40))
+        self.rect = self.image.get_rect()
+        
+    def update(self):
+        mousex, mousey = pygame.mouse.get_pos()
+        self.rect.center = (mousex, mousey)
+
+class Duck(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("duckAlive.png")
+        self.rect = self.image.get_rect()
+        self.reset()
+        
+    def update(self):
+        self.rect.topleft = self.X, self.Y
+        self.X += self.directX
+        self.Y += self.directY
+        if self.X > 1000:
+            self.reset()
+            
+    def reset(self):
+        self.rect.left = 0
+        self.image = pygame.transform.scale(self.image, (75, 75))
+        self.X = -80
+        self.Y = random.randrange(0, 300)
+        self.directX = random.randrange(-2, 2)
+        self.directY = random.randrange(-2, 2)
+
+
+def main():
+
+    pygame.display.set_caption("Duck Hunt!")
+            
+#Load the game sprites
+
+    background = pygame.image.load("background.png")
+    pointer = Pointer()
+    duck1 = Duck()
+
+    backgroundx = 0
+        
+    duckSprites = pygame.sprite.Group(duck1)    
+    friendSprites = pygame.sprite.Group(pointer)
+    
+    clock = pygame.time.Clock()
+    keepGoing = True
+    while keepGoing:
+        clock.tick(40)
+        pygame.mouse.set_visible(False)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                keepGoing = False
+                
+        duck1.X += 10
+        screen.blit(background, (backgroundx, 0))
+        friendSprites.update()
+        friendSprites.draw(screen)
+        duckSprites.update()
+        duckSprites.draw(screen)
+        
+        pygame.display.flip() 
+          
+    #return mouse cursor
+    pygame.mouse.set_visible(True) 
+
+if __name__ == '__main__':
+    main()
