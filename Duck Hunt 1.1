@@ -1,0 +1,106 @@
+#Author's name: Kurtis De Valk
+#Last Modified by: Kurtis De Valk 
+#Date last Modified: July. 31, 2013 
+#Program description: Duck Hunt
+#Revision History: 1.1
+
+import pygame, random
+pygame.init()
+
+screen = pygame.display.set_mode((891, 558))
+
+class Pointer(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("Crosshair.gif")
+        self.image = pygame.transform.scale(self.image, (40, 40))
+        self.rect = self.image.get_rect()
+    
+    def update(self):
+
+        mousex, mousey = pygame.mouse.get_pos()
+        self.rect.center = (mousex, mousey)
+        
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("bullet.png")
+        self.image = pygame.transform.scale(self.image, (10, 10))
+        self.rect = self.image.get_rect()
+        
+    def update(self):
+
+        mousex, mousey = pygame.mouse.get_pos()
+        self.rect.center = (mousex, mousey)
+    
+        
+class Duck(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("duckAlive.png")
+        self.rect = self.image.get_rect()
+        self.reset()                
+                
+    def update(self):
+        self.rect.topleft = self.X, self.Y
+        self.X += self.directX
+        self.Y += self.directY
+        if self.X > 1000:
+            self.reset()
+    
+    def reset(self):
+        self.rect.left = 0
+
+        self.X = -80
+        self.Y = random.randrange(50, 300)
+        self.directX = random.randrange(-2, 2)
+        self.directY = random.randrange(-2, 2)
+            
+def main():
+
+    pygame.display.set_caption("Duck Hunt!")
+                
+#Load the game sprites
+
+    background = pygame.image.load("background.png")
+    pointer = Pointer()
+    bullet = Bullet()
+    duck1 = Duck()
+    backgroundx = 0
+     
+    friendSprites = pygame.sprite.Group(pointer)
+    duckSprites = pygame.sprite.Group(duck1)
+    clock = pygame.time.Clock()
+        
+    keepGoing = True
+    while keepGoing:
+        clock.tick(30)
+        pygame.mouse.set_visible(False)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                keepGoing = False
+            elif event.type == pygame.MOUSEBUTTONUP:
+                bullet.kill()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                bullet.update()
+                
+                
+        duckShot = pygame.sprite.spritecollide(bullet, duckSprites, False)
+        if duckShot:
+            for theDuck in duckShot:
+                theDuck.reset()
+                
+        screen.blit(background, (backgroundx, 0))
+        friendSprites.update()
+        friendSprites.draw(screen)
+        duckSprites.update()
+        duckSprites.draw(screen)
+        duck1.X += 7.5    
+            
+        pygame.display.flip() 
+            
+    #return mouse cursor
+    pygame.mouse.set_visible(True) 
+
+if __name__ == '__main__':
+    main()
